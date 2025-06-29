@@ -1,21 +1,36 @@
 package com.check.ats;
 
+import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.FileReader;
 import java.io.IOException;
 import org.apache.pdfbox.Loader;
 import org.apache.pdfbox.pdmodel.PDDocument;
 import org.apache.pdfbox.text.PDFTextStripper;
 import org.apache.poi.xwpf.usermodel.XWPFDocument;
 import org.apache.poi.xwpf.usermodel.XWPFParagraph;
+import org.springframework.stereotype.Service;
 
+@Service
 public class ParseDocument {
     public static PDDocument pdf = null;
     public static PDFTextStripper pdfText = new PDFTextStripper();
     public static XWPFDocument document = null;
     public static XWPFParagraph para = null;
 
-    public static String pdf(String path){
+    public ParseDocument(String path){
+        String a = getFiletype(path).toLowerCase();
+        switch (a) {
+            case "pdf": pdf(a); break;
+            case "docx": docx(a); break;
+            case "txt": txt(a); break;
+            default: break;
+        }
+    }
+
+    public String pdf(String path){
         try{
             File location = new File(path);
             pdf = Loader.loadPDF(location);
@@ -36,7 +51,7 @@ public class ParseDocument {
         return null;
     }
 
-    public static String docx(String path){
+    public String docx(String path){
         try{
             File location = new File(path);
             StringBuilder sb = new StringBuilder();
@@ -60,6 +75,34 @@ public class ParseDocument {
         }
         return null;
     }
+
+    public String txt(String path){
+        BufferedReader br = null;
+        try{
+            StringBuilder sb = new StringBuilder();
+            br = new BufferedReader(new FileReader(path));
+            while (br.ready()) {
+                sb.append(br.readLine());
+            }
+            return sb.toString();
+        }
+        catch(FileNotFoundException e){
+            e.printStackTrace();
+        }
+        catch (IOException e){
+            e.printStackTrace();
+        }
+        finally{
+            try{
+                if (br != null){
+                    br.close();
+                }
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+        return null;
+    }
     
     public String getFiletype(String path){
         String extension = "";
@@ -69,5 +112,4 @@ public class ParseDocument {
         } 
         return extension;  
     }
-    
 }
