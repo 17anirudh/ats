@@ -20,13 +20,13 @@ public class ParseDocument {
     public static XWPFDocument document = null;
     public static XWPFParagraph para = null;
 
-    public ParseDocument(String path){
+    public String parse(String path){
         String a = getFiletype(path).toLowerCase();
         switch (a) {
-            case "pdf": pdf(a); break;
-            case "docx": docx(a); break;
-            case "txt": txt(a); break;
-            default: break;
+            case "pdf": return pdf(a);
+            case "docx": return docx(a);
+            case "txt": return txt(a);
+            default: return null;
         }
     }
 

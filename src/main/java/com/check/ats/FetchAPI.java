@@ -12,20 +12,24 @@ import org.springframework.web.multipart.MultipartFile;
 
 @RestController
 public class FetchAPI {
-    @PostMapping("/score")
+    Map<String, String> result = new HashMap<>();
+    @PostMapping("/calculate")
         public ResponseEntity<Map<String, String>> handleUpload(
             @RequestParam("description") String description,
             @RequestParam("qualifications") String qualifications,
             @RequestParam("resume") MultipartFile resume
     ){
         try{
-        String filename = resume.getOriginalFilename();
-        File dest = new File(System.getProperty("..\\..\\..\\..\\resources\\static\\pdfs"), filename);
-        resume.transferTo(dest);
-        boolean exists = dest.exists();
-        Map<String, String> result = new HashMap<>();
-        result.put("result", "✅ File saved: " + filename + " (" + (exists ? "exists" : "missing") + ")");
-        return ResponseEntity.ok(result);
+            String filename = resume.getOriginalFilename();
+            File dest = new File(System.getProperty("..\\..\\..\\..\\resources\\static\\pdfs"), filename);
+            ParseDocument parser = new ParseDocument();
+            resume.transferTo(dest);
+            String text = parser.parse("..\\..\\..\\..\\resources\\static\\pdfs" + filename);
+            result.put("Resume", text);
+            result.put("Qualification", qualifications);
+            result.put("Description", description);
+            
+            return ResponseEntity.ok(result);
         }
         catch (IOException e){
 
